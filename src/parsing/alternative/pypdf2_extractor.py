@@ -1,3 +1,5 @@
+# Provides a fallback parser if the primary PDF parser (pdfminer) fails.
+# Different PDF libraries handle edge cases differently (e.g., scanned text, tables).
 import PyPDF2
 from typing import Optional
 from pathlib import Path

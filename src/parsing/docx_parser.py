@@ -1,3 +1,4 @@
+# DOCX-specific parser to handle tables and formatted text
 from docx import Document
 from pathlib import Path
 from typing import Optional
