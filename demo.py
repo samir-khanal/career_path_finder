@@ -1,3 +1,4 @@
+# This  code is for Showing demo to our Supervisor not used for actual project development
 from src.parsing import parse_resume
 from pathlib import Path
 
