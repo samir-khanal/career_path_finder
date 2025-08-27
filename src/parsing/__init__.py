@@ -16,11 +16,12 @@
         raise FileNotFoundError(f"PDF not found: {pdf_path}")'''
 
 from pathlib import Path
-from typing import Optional, Literal
+from typing import Optional, Dict, List, Literal
 from .pdf_parser import extract_text_from_pdf as pdfminer_extract
 from .docx_parser import extract_text_from_docx
 from .alternative.pypdf2_extractor import PDFExtractor
 from .text_cleaner import clean_extracted_text
+from .enhanced_parser import enhanced_extract_sections as extract_sections
 
 __version__ = "1.0.0"
 __all__ = ['parse_resume', 'parse_pdf']  # Public API
@@ -47,14 +48,22 @@ def parse_pdf(
     # Fallback to pdfminer
     return clean_extracted_text(pdfminer_extract(pdf_path))
 
-def parse_resume(file_path: str) -> Optional[str]:
-    """Unified parser for all supported formats"""
+def parse_resume(file_path: str) -> Optional[Dict[str, List[str]]]:
+    """Unified parser that returns structured data"""
     path = Path(file_path)
     suffix = path.suffix.lower()
     
+    # Extract raw text first
+    raw_text = None
     if suffix == '.pdf':
-        return parse_pdf(file_path, engine="auto")
+        raw_text = parse_pdf(file_path, engine="auto")
     elif suffix == '.docx':
-        if (text := extract_text_from_docx(file_path)):
-            return clean_extracted_text(text)
-    raise ValueError(f"Unsupported file format: {suffix}")
+        raw_text = extract_text_from_docx(file_path)
+    else:
+        raise ValueError(f"Unsupported file format: {suffix}")
+
+    if not raw_text:
+        return None
+
+    # Convert raw text to structured data
+    return extract_sections(raw_text)  # This should return dict

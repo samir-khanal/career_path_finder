@@ -7,3 +7,19 @@ venv/
 __pycache__/
 *.pyc
 .env
+
+# Models
+models/
+*.joblib
+*.pkl
+
+# Data
+dataset/
+processed_data/
+*.csv
+*.xlsx
+
+# IDE/OS
+.vscode/
+.DS_Store
+Thumbs.db
