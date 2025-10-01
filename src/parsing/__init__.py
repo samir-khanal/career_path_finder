@@ -66,4 +66,4 @@ def parse_resume(file_path: str) -> Optional[Dict[str, List[str]]]:
         return None
 
     # Convert raw text to structured data
-    return extract_sections(raw_text)  # This should return dict
+    return extract_sections(raw_text, file_path)  # This should return dict

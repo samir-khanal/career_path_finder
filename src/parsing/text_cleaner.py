@@ -21,6 +21,22 @@ def clean_skill_list(skills: List[str]) -> List[str]:
     """Clean and normalize a list of skills - FIXED VERSION"""
     cleaned = []
     seen = set()
+
+    skill_normalizations = {
+        'objective-c': 'objective-c',
+        'objective c': 'objective-c', 
+        'cocoa touch': 'cocoa touch',
+        'cocoa': 'cocoa touch',
+        'nsuserdefaults': 'nsuserdefaults',
+        'node.js': 'node',
+        'node': 'node',
+        'rest': 'rest',
+        'soap': 'soap',
+        'xml': 'xml', 
+        'json': 'json',
+        'sqlite': 'sqlite',
+        'plist': 'plist',
+    }
     
     for skill in skills:
         if not skill or not isinstance(skill, str):
@@ -36,7 +52,8 @@ def clean_skill_list(skills: List[str]) -> List[str]:
             
         # ✅ CRITICAL FIX: Don't use .title() - it ruins acronyms like SQL -> Sql
         # Instead, keep original case but normalize for comparison
-        skill_normalized = skill_clean.lower()
+        skill_lower = skill_clean.lower()
+        skill_normalized = skill_normalizations.get(skill_lower, skill_lower)
         
         # Avoid duplicates using normalized form
         if skill_normalized not in seen:
