@@ -24,7 +24,8 @@ class AuthService:
                 user_data = {
                     "id": response.user.id,
                     "email": email,
-                    "full_name": full_name or email.split('@')[0]
+                    "full_name": full_name or email.split('@')[0],
+                    "auth_id": response.user.id
                 }
                 self.client.table("users").insert(user_data).execute()
 
