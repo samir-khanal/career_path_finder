@@ -14,7 +14,7 @@ if str(PROJ_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJ_ROOT))
 
 try:
-    from src.parsing.ml.skill_matcher import analyze_resume
+    from src.parsing.ml.skill_matcher_db import analyze_resume
     from src.database import AuthService, ResumeRepository, SkillRepository, init_supabase
 except ImportError as e:
     st.error(f"Import error: {e}")
@@ -30,14 +30,21 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# ✅ COMPLETELY FIXED CSS - Title now visible with proper contrast
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
     * {
         font-family: 'Inter', sans-serif;
     }
 
+    /* Hide Streamlit default header */
+    header {
+        visibility: hidden;
+    }
+
+    /* Main background */
     .main {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         background-attachment: fixed;
@@ -47,39 +54,56 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
+    /* ✅ FIXED: Container with proper padding */
     .main-container {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.98);
         border-radius: 20px;
-        padding: 30px;
+        padding: 40px 30px;
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         backdrop-filter: blur(10px);
-        margin: 20px;
+        margin: 20px auto;
+        max-width: 1400px;
     }
 
-    h1 {
+    /* ✅ FIXED: Title now clearly visible */
+    .custom-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        text-align: center;
+        margin: 0 0 10px 0;
+        padding: 0;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        font-size: 3rem !important;
-        text-align: center;
-        margin-bottom: 10px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        background-clip: text;
+        line-height: 1.2;
+        letter-spacing: -1px;
     }
 
+    /* Subtitle */
+    .custom-subtitle {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #555;
+        margin-bottom: 30px;
+        font-weight: 500;
+    }
+
+    /* Section headers */
     h2 {
-        color: #667eea;
-        font-weight: 700;
+        color: #667eea !important;
+        font-weight: 700 !important;
         border-bottom: 3px solid #667eea;
         padding-bottom: 10px;
         margin-top: 30px;
     }
 
     h3 {
-        color: #764ba2;
-        font-weight: 600;
+        color: #764ba2 !important;
+        font-weight: 600 !important;
     }
 
+    /* Buttons */
     .stButton > button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -97,8 +121,10 @@ st.markdown("""
     .stButton > button:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     }
 
+    /* Stat cards */
     .stat-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 25px;
@@ -126,6 +152,7 @@ st.markdown("""
         letter-spacing: 1px;
     }
 
+    /* Skill badges */
     .skill-badge {
         display: inline-block;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -133,22 +160,25 @@ st.markdown("""
         padding: 8px 16px;
         border-radius: 20px;
         margin: 5px;
-        font-weight: 500;
+        font-weight: 600;
         font-size: 14px;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
     }
 
     .skill-badge-missing {
         background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+        font-weight: 600;
     }
 
+    /* Message boxes */
     .success-box {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         padding: 20px;
         border-radius: 15px;
         color: white;
         margin: 15px 0;
-        font-weight: 500;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
     }
 
     .warning-box {
@@ -157,7 +187,8 @@ st.markdown("""
         border-radius: 15px;
         color: white;
         margin: 15px 0;
-        font-weight: 500;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
     }
 
     .info-box {
@@ -166,13 +197,16 @@ st.markdown("""
         border-radius: 15px;
         color: white;
         margin: 15px 0;
-        font-weight: 500;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
     }
 
+    /* Progress bar */
     .stProgress > div > div > div > div {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
+    /* File uploader */
     .uploadedFile {
         background: rgba(102, 126, 234, 0.1);
         border: 2px dashed #667eea;
@@ -180,21 +214,57 @@ st.markdown("""
         padding: 20px;
     }
 
-    .sidebar .sidebar-content {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    /* Tables */
+    .dataframe {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        background-color: transparent;
+        border-radius: 10px 10px 0 0;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
     }
 
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    /* Forms */
+    .stTextInput > div > div > input {
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        padding: 12px;
+        font-size: 16px;
     }
 
+    .stTextInput > div > div > input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
+    /* Metric container */
     .metric-container {
         background: white;
         padding: 20px;
         border-radius: 15px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         margin: 10px 0;
+    }
+
+    /* Remove extra padding */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 0rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -219,10 +289,15 @@ def init_session_state():
 
 def show_auth_page():
     """Show authentication page"""
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
-
-    st.markdown("<h1>🎯 AI Resume Analyzer Pro</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 30px;'>Advanced Resume Analysis & Skill Gap Detection</p>", unsafe_allow_html=True)
+    # ✅ SOLUTION: Put title INSIDE the white container box for perfect visibility
+    st.markdown("""
+    <div class="main-container">
+        <h1 class="custom-title"> AI Resume Analyzer Pro</h1>
+        <p class="custom-subtitle">Advanced Resume Analysis & Skill Gap Detection with AI-Powered OCR</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    #st.markdown('<div class="main-container" style="margin-top: 20px;">', unsafe_allow_html=True)
 
     tab1, tab2 = st.tabs(["🔐 Sign In", "📝 Sign Up"])
 
@@ -276,13 +351,20 @@ def show_auth_page():
 
 def show_dashboard():
     """Show main dashboard"""
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
-
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown("<h1>🎯 Resume Analyzer Dashboard</h1>", unsafe_allow_html=True)
-    with col2:
-        if st.button("🚪 Sign Out"):
+    # Single markdown container with header and placeholder for button
+    st.markdown("""
+    <div class="main-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 class="custom-title">Resume Analyzer Dashboard</h1>
+            <div id="signout-placeholder"></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Add sign-out button in the correct position using columns
+    col1, col2, col3 = st.columns([2, 1, 1])
+    with col3:
+        if st.button("🚪 Sign Out", key="sign_out_btn"):
             st.session_state.auth_service.sign_out()
             st.session_state.authenticated = False
             st.session_state.user = None
@@ -290,7 +372,7 @@ def show_dashboard():
             st.rerun()
 
     user_email = st.session_state.user.email if st.session_state.user else "Guest"
-    st.markdown(f"<p style='text-align: center; color: #666;'>Welcome back, <strong>{user_email}</strong>!</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 30px;'>Welcome back, <strong>{user_email}</strong>!</p>", unsafe_allow_html=True)
 
     stats = st.session_state.resume_repo.get_resume_statistics(st.session_state.user.id)
 
@@ -346,11 +428,12 @@ def show_dashboard():
 def show_upload_section():
     """Upload and analyze resume section"""
     st.markdown("## 📤 Upload Your Resume")
+    st.markdown("**Supports both text-based and scanned/image PDFs with OCR**")
 
     uploaded = st.file_uploader(
         "Choose your resume file (PDF or DOCX)",
         type=["pdf", "docx"],
-        help="Upload your resume for AI-powered analysis"
+        help="Upload your resume for AI-powered analysis. Scanned PDFs are automatically processed with OCR."
     )
 
     if uploaded:
@@ -363,7 +446,7 @@ def show_upload_section():
 
         st.markdown('<div class="success-box">✅ Resume uploaded successfully!</div>', unsafe_allow_html=True)
 
-        with st.spinner("🔍 Analyzing your resume with AI..."):
+        with st.spinner("🔍 Analyzing your resume with AI (including OCR for scanned documents)..."):
             progress = st.progress(0)
             for i in range(100):
                 time.sleep(0.01)
@@ -372,7 +455,9 @@ def show_upload_section():
             roles_map = st.session_state.skill_repo.get_all_job_roles()
             result = analyze_resume(str(saved_path))
 
-            raw_text = saved_path.read_text(errors='ignore') if saved_path.suffix == '.txt' else ""
+            raw_text = ""
+            if saved_path.suffix == '.txt':
+                raw_text = saved_path.read_text(errors='ignore')
 
             resume_record = st.session_state.resume_repo.save_resume(
                 user_id=st.session_state.user.id,
@@ -399,7 +484,7 @@ def show_upload_section():
                 if len(skills) > 15:
                     st.info(f"+ {len(skills) - 15} more skills")
             else:
-                st.markdown('<div class="warning-box">⚠️ No skills detected</div>', unsafe_allow_html=True)
+                st.markdown('<div class="warning-box">⚠️ No skills detected. Try a different resume format.</div>', unsafe_allow_html=True)
 
             st.markdown("**🎓 Education:**")
             if edu:
@@ -427,14 +512,15 @@ def show_upload_section():
                 default_role = preds[0][0]
             else:
                 st.markdown('<div class="info-box">ℹ️ No predictions available</div>', unsafe_allow_html=True)
-                default_role = list(roles_map.keys())[0] if roles_map else "Data Scientist"
+                default_role = list(roles_map.keys())[0] if roles_map else "Junior Data Scientist"
 
             st.markdown("---")
 
             chosen = st.selectbox(
                 "🎯 Select Target Role for Gap Analysis",
                 options=list(roles_map.keys()),
-                index=list(roles_map.keys()).index(default_role) if default_role in roles_map else 0
+                index=list(roles_map.keys()).index(default_role) if default_role in roles_map else 0,
+                help="Select from actual job roles in our database"
             )
 
             if chosen != result["chosen_role"]:
@@ -527,7 +613,6 @@ def show_analytics():
         return
 
     df = pd.DataFrame(analyses)
-
     df['analysis_date'] = pd.to_datetime(df['analysis_date'])
 
     col1, col2 = st.columns(2)
