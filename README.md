@@ -39,8 +39,7 @@ Streamlit – Web frontend
 
 ### Clone the repository
 ```bash
-git clone https://github.com/YOUR-USERNAME/resume_analyzer.git
-cd resume_analyzer  
+git clone https://github.com/YOUR-USERNAME/career_path_finder.git  
 ```
 ### Create virtual environment & install dependencies
 ``` 
@@ -53,7 +52,7 @@ pip install -r requirements.txt
 ### Run Streamlit App
 ```
 cd app
-streamlit run app.py
+streamlit run streamlit_app_enhanced.py
 ```
 
 ## 📊 Usage
