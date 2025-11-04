@@ -189,7 +189,7 @@ st.markdown("""
     .section-header {
         font-size: 1.3rem;
         font-weight: 600;
-        color: #1f2937;
+        color:#ffffff;
         margin: 30px 0 20px 0;
         padding-bottom: 10px;
         border-bottom: 2px solid #e5e7eb;
@@ -816,7 +816,7 @@ def show_footer():
     </style>
 
     <div class="footer">
-        <p>🚀 Built with ❤️ by <strong>Samir Khanal, Sijan Poudel and Ishant Chalise</strong></p>
+        <p>🚀 Built by <strong>Samir Khanal, Sijan Poudel and Ishan Chalise</strong></p>
         <div class="social-icons">
             <a href="https://github.com/samir-khanal" target="_blank">💻 GitHub</a> |
             <a href="https://www.linkedin.com/in/samir-khanal7/" target="_blank">🔗 LinkedIn</a> |
