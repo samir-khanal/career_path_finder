@@ -83,34 +83,39 @@ def debug_skill_matching(resume_skills: List[str], required_skills: List[str]):
 # ----------------------------
 # Data loaders - SIMPLIFIED
 # ----------------------------
-def load_skill_dataset(csv_path: Path = DATASET_CSV) -> Dict[str, List[str]]:
-    """Load CSV with skills dataset - SIMPLIFIED VERSION"""
-    if csv_path.exists():
-        try:
-            import pandas as pd
-            df = pd.read_csv(csv_path)
-            roles = {}
-            for _, row in df.iterrows():
-                role = row['role']
-                skills_str = row['skills']
-                skills = [s.strip() for s in skills_str.split(';') if s.strip()]
-                roles[role] = skills
-            print(f"✅ CSV loaded successfully with {len(roles)} roles")
-            return roles
-        except Exception as e:
-            print(f"❌ Error loading CSV: {e}")
+def load_skill_dataset() -> Dict[str, List[str]]:
+    """
+    Load job roles with REALISTIC skill overlaps
+    """
+    print("🔄 Loading realistic skill dataset with overlaps...")
     
-    # Fallback to default dataset
-    print("⚠️ Using default skill dataset")
     return {
-        'Junior Data Scientist': ['Python', 'Pandas', 'Numpy', 'Data Visualization', 
-                                'SQL', 'Statistics', 'Scikit-learn', 'EDA', 'Communication'],
-        'Junior ML Engineer': ['Python', 'Machine Learning', 'Deep Learning', 
-                             'TensorFlow', 'SQL', 'MLOps', 'Docker'],
-        'Senior Data Scientist': ['Python', 'Advanced ML', 'Big Data', 'Cloud', 
-                                'Leadership', 'Project Management'],
-        'Data Analyst': ['SQL', 'Excel', 'Data Visualization', 'Statistics', 
-                       'Reporting', 'Communication'],
+        'Junior Data Scientist': [
+            'python', 'pandas', 'sql', 'statistics', 'machine learning', 
+            'data visualization', 'scikit-learn', 'numpy', 'git'
+        ],
+        'Senior Data Scientist': [
+            'python', 'machine learning', 'deep learning', 'sql', 'aws',
+            'statistics', 'tensorflow', 'pytorch', 'spark', 'big data',
+            'docker', 'kubernetes', 'mlops', 'nlp'
+        ],
+        'ML Engineer': [
+            'python', 'machine learning', 'tensorflow', 'pytorch', 'docker',
+            'aws', 'deep learning', 'kubernetes', 'mlops', 'computer vision',
+            'nlp', 'git'
+        ],
+        'Data Analyst': [
+            'sql', 'python', 'excel', 'tableau', 'power bi', 'statistics',
+            'data visualization', 'pandas', 'data analysis', 'reporting'
+        ],
+        'Data Engineer': [
+            'python', 'sql', 'aws', 'spark', 'docker', 'kubernetes',
+            'etl', 'big data', 'airflow', 'kafka'
+        ],
+        'Business Analyst': [
+            'sql', 'excel', 'tableau', 'power bi', 'requirements', 'documentation',
+            'communication', 'project management'
+        ]
     }
 
 def parse_resume_structured(file_path: str) -> Dict[str, List[str]]:

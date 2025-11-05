@@ -44,7 +44,7 @@ git clone https://github.com/YOUR-USERNAME/career_path_finder.git
 ### Create virtual environment & install dependencies
 ``` 
 python -m venv venv
-source venv/bin/activate   # On Linux/Mac
+source .venv/bin/activate   # On Linux/Mac
 .venv\Scripts\activate      # On Windows
 pip install -r requirements.txt
 ```
