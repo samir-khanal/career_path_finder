@@ -396,11 +396,17 @@ def show_auth_page():
         with tab1:
             st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
             with st.form("signin_form", clear_on_submit=False):
-                email = st.text_input("📧 Email Address", placeholder="your.email@example.com", key="signin_email")
-                password = st.text_input("🔒 Password", type="password", placeholder="Enter your password", key="signin_password")
+                email = st.text_input("Email Address", placeholder="your.email@example.com", key="signin_email")
+                password = st.text_input("Password", type="password", placeholder="Enter your password", key="signin_password")
                 
                 st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
                 submit = st.form_submit_button("Sign In", use_container_width=True)
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown('<div style="font-size: 0.85rem; color: #666;">Forgot password?</div>', unsafe_allow_html=True)
+                with col2:
+                    st.markdown('<div style="font-size: 0.85rem; color: #666; text-align: right;">New here? Create account</div>', unsafe_allow_html=True)
                 
                 if submit:
                     if email and password:
@@ -410,19 +416,19 @@ def show_auth_page():
                                 st.session_state.authenticated = True
                                 st.session_state.user = result['user']
                                 st.session_state.page = 'dashboard'
-                                st.success("✅ " + result['message'])
+                                st.success("✅Success!" + result['message'])
                                 time.sleep(1)
                                 st.rerun()
                             else:
-                                st.error("❌ " + result['message'])
+                                st.error("❌Error: " + result['message'])
                     else:
-                        st.warning("⚠️ Please fill in all fields")
+                        st.warning("Please fill in all fields")
         
         with tab2:
             st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
             with st.form("signup_form", clear_on_submit=False):
-                full_name = st.text_input("👤 Full Name", placeholder="John Doe", key="signup_name")
-                email = st.text_input("📧 Email Address", placeholder="your.email@example.com", key="signup_email")
+                full_name = st.text_input("Full Name", placeholder="Enter Your Name", key="signup_name")
+                email = st.text_input("Email Address", placeholder="your.email@example.com", key="signup_email")
                 password = st.text_input("🔒 Password", type="password", placeholder="Choose a strong password", key="signup_password")
                 password_confirm = st.text_input("🔒 Confirm Password", type="password", placeholder="Re-enter your password", key="signup_confirm")
                 
@@ -436,10 +442,10 @@ def show_auth_page():
                                 with st.spinner("Creating account..."):
                                     result = st.session_state.auth_service.sign_up(email, password, full_name)
                                     if result['success']:
-                                        st.success("✅ " + result['message'])
-                                        st.info("💡 Please use the Sign In tab to access your account")
+                                        st.success("SUCCESS: " + result['message'])
+                                        st.info(" Please use the Sign In tab to access your account")
                                     else:
-                                        st.error("❌ " + result['message'])
+                                        st.error("ERROR: " + result['message'])
                             else:
                                 st.error("❌ Password must be at least 6 characters")
                         else:
@@ -457,7 +463,7 @@ def show_dashboard():
         user_name = st.session_state.user.email.split('@')[0].title() if st.session_state.user else "User"
         st.markdown(f"""
         <div class="welcome-banner">
-            <div class="welcome-title">👋 Welcome back, {user_name}!</div>
+            <div class="welcome-title"> Welcome back, {user_name}!</div>
             <div class="welcome-subtitle">Track your resume analysis, match scores, and skill development journey</div>
         </div>
         """, unsafe_allow_html=True)
@@ -465,7 +471,7 @@ def show_dashboard():
     with col2:
         st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
         st.markdown('<div class="secondary-btn">', unsafe_allow_html=True)
-        if st.button("🚪 Sign Out", use_container_width=True):
+        if st.button(" Sign Out", use_container_width=True):
             st.session_state.auth_service.sign_out()
             st.session_state.authenticated = False
             st.session_state.user = None
@@ -497,7 +503,7 @@ def show_dashboard():
     with col3:
         st.markdown(f"""
         <div class="stat-card">
-            <div class="stat-label">🎯 Avg Match</div>
+            <div class="stat-label"> Avg Match</div>
             <div class="stat-number">{stats['average_match_score']}%</div>
         </div>
         """, unsafe_allow_html=True)
@@ -505,7 +511,7 @@ def show_dashboard():
     with col4:
         st.markdown(f"""
         <div class="stat-card">
-            <div class="stat-label">💡 Unique Skills</div>
+            <div class="stat-label"> Unique Skills</div>
             <div class="stat-number">{stats['unique_skills']}</div>
         </div>
         """, unsafe_allow_html=True)
@@ -528,7 +534,7 @@ def show_dashboard():
 
 def show_upload_section():
     """Upload and analyze resume section"""
-    st.markdown('<div class="section-header">📤 Upload Your Resume</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header"> Upload Your Resume</div>', unsafe_allow_html=True)
     st.markdown("**Supports PDF and DOCX files. Scanned documents automatically processed with OCR.**")
     
     uploaded = st.file_uploader(
@@ -576,7 +582,7 @@ def show_upload_section():
             edu = result["parsed"].get("education", [])
             exp = result["parsed"].get("experience", [])
             
-            st.markdown("**💡 Skills Found:**")
+            st.markdown("** Skills Found:**")
             if skills:
                 skills_html = " ".join([f'<span class="skill-badge">{skill.title()}</span>' 
                                        for skill in sorted(skills)[:20]])
@@ -603,7 +609,7 @@ def show_upload_section():
                 st.write("—")
         
         with col2:
-            st.markdown('<div class="section-header">🎯 Job Role Analysis</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header"> Job Role Analysis</div>', unsafe_allow_html=True)
             
             preds = result.get("predictions", [])
             if preds:
@@ -619,7 +625,7 @@ def show_upload_section():
             
             st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
             chosen = st.selectbox(
-                "🎯 Select Target Role for Detailed Analysis",
+                " Select Target Role for Detailed Analysis",
                 options=list(roles_map.keys()),
                 index=list(roles_map.keys()).index(default_role) if default_role in roles_map else 0
             )
@@ -678,7 +684,7 @@ def show_my_resumes():
     resumes = st.session_state.resume_repo.get_user_resumes(st.session_state.user.id)
     
     if not resumes:
-        st.markdown('<div class="info-box">📭 No resumes yet. Upload your first resume in the "Upload & Analyze" tab!</div>', unsafe_allow_html=True)
+        st.markdown('<div class="info-box"> No resumes yet. Upload your first resume in the "Upload & Analyze" tab!</div>', unsafe_allow_html=True)
         return
     
     for resume in resumes:
@@ -686,11 +692,11 @@ def show_my_resumes():
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                st.metric("📦 File Size", f"{resume['file_size'] / 1024:.1f} KB")
+                st.metric(" File Size", f"{resume['file_size'] / 1024:.1f} KB")
             
             with col2:
                 skills_count = len(json.loads(resume['parsed_skills'])) if isinstance(resume['parsed_skills'], str) else len(resume['parsed_skills'])
-                st.metric("💡 Skills", skills_count)
+                st.metric(" Skills", skills_count)
             
             with col3:
                 st.metric("📝 Type", resume['file_type'].upper())
@@ -741,7 +747,7 @@ def show_analytics():
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        st.markdown("**🎯 Roles Analyzed**")
+        st.markdown("** Roles Analyzed**")
         role_counts = df['target_role'].value_counts()
         fig = px.pie(
             values=role_counts.values,
@@ -837,7 +843,7 @@ def show_footer():
                 </div>
             </div>
             <div class="footer-bottom">
-                © 2024 AI Resume Analyzer Pro. Built by Samir Khanal, Sijan Poudel and Ishan Chalise. All rights reserved.
+                © 2024 AI Resume Analyzer Pro. Built by Samir Khanal, Sijan Poudel and Ishant Chalise. All rights reserved.
             </div>
         </div>
     </div>

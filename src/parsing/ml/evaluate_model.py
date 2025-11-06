@@ -51,7 +51,7 @@ def synthesize_samples(roles_map: Dict[str, List[str]], per_role: int = 20) -> L
     rng = np.random.default_rng(42)
     samples: List[dict] = []
     
-    print("\n📊 Generating Synthetic Training Data...")
+    print("\n Generating Synthetic Training Data...")
     print("=" * 60)
     
     # Realistic templates WITHOUT job titles
@@ -67,7 +67,7 @@ def synthesize_samples(roles_map: Dict[str, List[str]], per_role: int = 20) -> L
     
     for role, skills in roles_map.items():
         if len(skills) < 3:
-            print(f"⚠️  Skipping '{role}' - only {len(skills)} skills (need ≥3)")
+            print(f"  Skipping '{role}' - only {len(skills)} skills (need ≥3)")
             continue
             
         role_samples = 0
@@ -99,7 +99,7 @@ def synthesize_samples(roles_map: Dict[str, List[str]], per_role: int = 20) -> L
         print(f"✓ {role:25} → {role_samples:2} samples ({len(skills)} skills)")
     
     print("=" * 60)
-    print(f"✅ Total samples generated: {len(samples)}\n")
+    print(f" Total samples generated: {len(samples)}\n")
     return samples
 
 def train_and_evaluate_model(per_role: int = 20, test_size: float = 0.25) -> Dict:
@@ -114,7 +114,7 @@ def train_and_evaluate_model(per_role: int = 20, test_size: float = 0.25) -> Dic
         Dictionary containing all evaluation metrics
     """
     print("\n" + "=" * 60)
-    print("🎯 RESUME ANALYZER - MODEL EVALUATION")
+    print(" RESUME ANALYZER - MODEL EVALUATION")
     print("=" * 60)
     
     # Load job roles and skills from database
@@ -131,7 +131,7 @@ def train_and_evaluate_model(per_role: int = 20, test_size: float = 0.25) -> Dic
     samples = synthesize_samples(roles_map, per_role=per_role)
     
     if not samples:
-        raise ValueError("❌ No samples generated! Check if roles have sufficient skills.")
+        raise ValueError(" No samples generated! Check if roles have sufficient skills.")
     
     texts = [s["text"] for s in samples]
     labels = [s["label"] for s in samples]
@@ -224,7 +224,7 @@ def train_and_evaluate_model(per_role: int = 20, test_size: float = 0.25) -> Dic
     cm_df.to_csv(CONFUSION_CSV)
     
     # Save model
-    print("\n💾 Saving model and vectorizer...")
+    print("\n Saving model and vectorizer...")
     joblib.dump(clf, MODEL_PATH)
     joblib.dump(vect, VECT_PATH)
     print(f"✓ Model saved: {MODEL_PATH}")
@@ -320,7 +320,7 @@ def save_metrics_report(metrics: Dict) -> None:
 def print_summary(metrics: Dict) -> None:
     """Print a summary of key metrics to console"""
     print("\n" + "=" * 60)
-    print("✅ MODEL EVALUATION COMPLETE")
+    print(" MODEL EVALUATION COMPLETE")
     print("=" * 60)
     
     overall = metrics["overall_metrics"]
@@ -335,14 +335,14 @@ def print_summary(metrics: Dict) -> None:
     print(f"  CV Accuracy:       {cv['cv_mean']*100:.2f}% ± {cv['cv_std']*100:.2f}%")
     print("-" * 60)
     
-    print("\n📁 OUTPUT FILES:")
+    print("\n OUTPUT FILES:")
     print(f"  • Metrics JSON:       {METRICS_JSON}")
     print(f"  • Evaluation Report:  {METRICS_REPORT}")
     print(f"  • Confusion Matrix:   {CONFUSION_CSV}")
     print(f"  • Trained Model:      {MODEL_PATH}")
     print(f"  • Vectorizer:         {VECT_PATH}")
     
-    print("\n💡 USAGE FOR PRESENTATION:")
+    print("\n USAGE FOR PRESENTATION:")
     print("  1. Show overall accuracy and F1-score from above")
     print("  2. Open evaluation_report.txt for detailed breakdown")
     print("  3. Reference confusion_matrix.csv for class-wise analysis")
@@ -362,7 +362,7 @@ def main():
         # Print summary
         print_summary(metrics)
         
-        print("✨ All done! Check the output files in:")
+        print(" All done! Check the output files in:")
         print(f"   {METRICS_DIR}\n")
         
     except Exception as e:
