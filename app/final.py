@@ -25,18 +25,18 @@ UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 st.set_page_config(
     page_title="AI Resume Analyzer Pro",
-    page_icon="🎯",
+    page_icon="📄",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# ✅ MODERN PROFESSIONAL UI - Like Popular Websites
+# ✅ PREMIUM WHITE UI DESIGN
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
     * {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
 
     /* Hide Streamlit branding */
@@ -46,106 +46,73 @@ st.markdown("""
     
     /* Main app background */
     .stApp {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #fafbfc;
     }
 
     /* ============================================
-       LOGIN PAGE STYLING - Modern Card Design
+       LOGIN PAGE STYLING - Premium Card Design
     ============================================ */
     .login-container {
-        max-width: 450px;
+        max-width: 440px;
         margin: 60px auto;
         background: white;
         border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        animation: fadeInUp 0.6s ease;
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        padding: 48px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f0f0f0;
     }
 
     .login-header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
     }
 
     .login-title {
         font-size: 2rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 8px;
+        color: #111827;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
     }
 
     .login-subtitle {
-        color: #666;
-        font-size: 0.95rem;
+        color: #6b7280;
+        font-size: 1rem;
         font-weight: 400;
+        line-height: 1.5;
     }
 
     /* ============================================
-       DASHBOARD STYLING - Modern Layout
+       DASHBOARD STYLING - Premium Layout
     ============================================ */
-    .dashboard-header {
-        background: white;
-        padding: 20px 40px;
-        margin: -70px -70px 30px -70px;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .dashboard-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin: 0;
-    }
-
     .dashboard-container {
-        max-width: 1400px;
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 40px;
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-        margin-top: 20px;
+        padding: 0 24px;
     }
 
     /* Welcome Banner */
     .welcome-banner {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 30px;
-        border-radius: 15px;
+        padding: 32px;
+        border-radius: 16px;
         color: white;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        margin-bottom: 32px;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
     }
 
-    .welcome-banner h2 {
-        margin: 0 0 8px 0;
-        font-size: 1.8rem;
+    .welcome-title {
+        font-size: 1.5rem;
         font-weight: 600;
-        color: white !important;
-        border: none !important;
-        padding: 0 !important;
+        margin: 0 0 8px 0;
+        color: white;
     }
 
-    .welcome-banner p {
-        margin: 0;
-        opacity: 0.95;
+    .welcome-subtitle {
         font-size: 1rem;
+        opacity: 0.9;
+        margin: 0;
+        color: white;
     }
 
     /* Stats Grid */
@@ -153,60 +120,61 @@ st.markdown("""
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 20px;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
     }
 
     .stat-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 25px;
-        border-radius: 15px;
-        color: white;
-        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
         transition: all 0.3s ease;
-        border: none;
+        text-align: center;
     }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
 
     .stat-number {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin: 10px 0;
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 12px 0;
     }
 
     .stat-label {
-        font-size: 0.85rem;
-        opacity: 0.9;
+        font-size: 0.8rem;
+        color: #6b7280;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        font-weight: 500;
+        font-weight: 600;
     }
 
     /* Section Headers */
     .section-header {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: 600;
-        color:#ffffff;
-        margin: 30px 0 20px 0;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #e5e7eb;
+        color: #111827;
+        margin: 40px 0 24px 0;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f0f0f0;
     }
 
-    /* Buttons - Modern Style */
+    /* Buttons - Premium Style */
     .stButton > button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
         border-radius: 10px;
-        padding: 12px 30px;
+        padding: 14px 28px;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         width: 100%;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
 
     .stButton > button:hover {
@@ -214,22 +182,36 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
 
-    /* Tabs - Clean Design */
+    /* Secondary Button */
+    .secondary-btn button {
+        background: white !important;
+        color: #667eea !important;
+        border: 2px solid #667eea !important;
+        box-shadow: none !important;
+    }
+
+    .secondary-btn button:hover {
+        background: #667eea !important;
+        color: white !important;
+    }
+
+    /* Tabs - Premium Design */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background: #f9fafb;
-        padding: 8px;
+        gap: 4px;
+        background: #f8fafc;
+        padding: 6px;
         border-radius: 12px;
     }
 
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
+        height: 48px;
         background: transparent;
         border-radius: 8px;
-        padding: 10px 20px;
-        font-weight: 600;
+        padding: 12px 20px;
+        font-weight: 500;
         color: #6b7280;
         border: none;
+        transition: all 0.3s ease;
     }
 
     .stTabs [aria-selected="true"] {
@@ -238,12 +220,12 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
-    /* Input Fields - Modern */
+    /* Input Fields */
     .stTextInput > div > div > input {
         border-radius: 10px;
         border: 2px solid #e5e7eb;
-        padding: 12px 16px;
-        font-size: 1rem;
+        padding: 14px 16px;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
     }
 
@@ -254,10 +236,10 @@ st.markdown("""
 
     /* File Uploader */
     .uploadedFile {
-        background: #f9fafb;
+        background: #f8fafc;
         border: 2px dashed #d1d5db;
         border-radius: 12px;
-        padding: 20px;
+        padding: 24px;
         transition: all 0.3s ease;
     }
 
@@ -273,9 +255,9 @@ st.markdown("""
         color: white;
         padding: 8px 16px;
         border-radius: 20px;
-        margin: 5px;
+        margin: 6px;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
     }
 
@@ -286,32 +268,32 @@ st.markdown("""
     /* Message Boxes */
     .success-box {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        padding: 16px 20px;
+        padding: 20px 24px;
         border-radius: 12px;
         color: white;
-        margin: 15px 0;
+        margin: 20px 0;
         font-weight: 500;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     }
 
     .warning-box {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        padding: 16px 20px;
+        padding: 20px 24px;
         border-radius: 12px;
         color: white;
-        margin: 15px 0;
+        margin: 20px 0;
         font-weight: 500;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
     }
 
     .info-box {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        padding: 16px 20px;
+        padding: 20px 24px;
         border-radius: 12px;
         color: white;
-        margin: 15px 0;
+        margin: 20px 0;
         font-weight: 500;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
     }
 
     /* Progress Bar */
@@ -321,33 +303,40 @@ st.markdown("""
 
     /* Expander */
     .streamlit-expanderHeader {
-        background: #f9fafb;
+        background: #f8fafc;
         border-radius: 10px;
         font-weight: 600;
         color: #374151;
+        border: 1px solid #f0f0f0;
+        margin-bottom: 8px;
     }
 
     /* Metrics */
     [data-testid="stMetricValue"] {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: 700;
         color: #667eea;
     }
 
-    /* Remove padding from block container */
-    .block-container {
-        padding-top: 1rem;
-        padding-bottom: 0rem;
-        max-width: 100%;
+    [data-testid="stMetricLabel"] {
+        color: #6b7280;
+        font-weight: 600;
     }
 
-    /* Content area cards */
+    /* Remove padding */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 0rem;
+    }
+
+    /* Content Cards */
     .content-card {
         background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #f0f0f0;
         margin-bottom: 20px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     }
 
     /* Selectbox */
@@ -356,19 +345,17 @@ st.markdown("""
         border: 2px solid #e5e7eb;
     }
 
-    /* Sign out button */
-    .sign-out-btn button {
-        background: white !important;
-        color: #667eea !important;
-        border: 2px solid #667eea !important;
-        padding: 8px 20px !important;
-        font-size: 0.9rem !important;
+    /* Dataframe */
+    .dataframe {
+        border: 1px solid #f0f0f0 !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
     }
 
-    .sign-out-btn button:hover {
-        background: #667eea !important;
-        color: white !important;
-    }
+    /* Custom spacing */
+    .spacing-sm { margin-bottom: 16px; }
+    .spacing-md { margin-bottom: 24px; }
+    .spacing-lg { margin-bottom: 32px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -391,15 +378,14 @@ def init_session_state():
             st.stop()
 
 def show_auth_page():
-    """Show modern authentication page"""
-    # Center the login card
+    """Show premium authentication page"""
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
         st.markdown("""
         <div class="login-container">
             <div class="login-header">
-                <div class="login-title"> AI Resume Analyzer Pro</div>
+                <div class="login-title">AI Resume Analyzer Pro</div>
                 <div class="login-subtitle">Advanced Resume Analysis & Skill Gap Detection</div>
             </div>
         </div>
@@ -408,12 +394,12 @@ def show_auth_page():
         tab1, tab2 = st.tabs(["🔐 Sign In", "📝 Sign Up"])
         
         with tab1:
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
             with st.form("signin_form", clear_on_submit=False):
                 email = st.text_input("📧 Email Address", placeholder="your.email@example.com", key="signin_email")
                 password = st.text_input("🔒 Password", type="password", placeholder="Enter your password", key="signin_password")
                 
-                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
                 submit = st.form_submit_button("Sign In", use_container_width=True)
                 
                 if submit:
@@ -433,14 +419,14 @@ def show_auth_page():
                         st.warning("⚠️ Please fill in all fields")
         
         with tab2:
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
             with st.form("signup_form", clear_on_submit=False):
-                full_name = st.text_input("👤 Full Name", placeholder="Your Name", key="signup_name")
+                full_name = st.text_input("👤 Full Name", placeholder="John Doe", key="signup_name")
                 email = st.text_input("📧 Email Address", placeholder="your.email@example.com", key="signup_email")
                 password = st.text_input("🔒 Password", type="password", placeholder="Choose a strong password", key="signup_password")
                 password_confirm = st.text_input("🔒 Confirm Password", type="password", placeholder="Re-enter your password", key="signup_confirm")
                 
-                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
                 submit = st.form_submit_button("Create Account", use_container_width=True)
                 
                 if submit:
@@ -462,7 +448,7 @@ def show_auth_page():
                         st.warning("⚠️ Please fill in all fields")
 
 def show_dashboard():
-    """Show modern dashboard"""
+    """Show premium dashboard"""
     st.markdown('<div class="dashboard-container">', unsafe_allow_html=True)
     
     # Header with sign out
@@ -471,14 +457,14 @@ def show_dashboard():
         user_name = st.session_state.user.email.split('@')[0].title() if st.session_state.user else "User"
         st.markdown(f"""
         <div class="welcome-banner">
-            <h2>👋 Welcome back, {user_name}!</h2>
-            <p>Track your resume analysis, match scores, and skill development journey</p>
+            <div class="welcome-title">👋 Welcome back, {user_name}!</div>
+            <div class="welcome-subtitle">Track your resume analysis, match scores, and skill development journey</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown('<div class="sign-out-btn">', unsafe_allow_html=True)
+        st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="secondary-btn">', unsafe_allow_html=True)
         if st.button("🚪 Sign Out", use_container_width=True):
             st.session_state.auth_service.sign_out()
             st.session_state.authenticated = False
@@ -524,7 +510,7 @@ def show_dashboard():
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<div class="spacing-lg"></div>', unsafe_allow_html=True)
     
     # Main content tabs
     tab1, tab2, tab3 = st.tabs(["📤 Upload & Analyze", "📁 My Resumes", "📊 Analytics"])
@@ -579,7 +565,7 @@ def show_upload_section():
                 file_size=uploaded.size
             )
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown('<div class="spacing-lg"></div>', unsafe_allow_html=True)
         
         col1, col2 = st.columns([1, 1])
         
@@ -600,14 +586,16 @@ def show_upload_section():
             else:
                 st.markdown('<div class="warning-box">⚠️ No skills detected</div>', unsafe_allow_html=True)
             
-            st.markdown("<br>**🎓 Education:**")
+            st.markdown('<div class="spacing-sm"></div>', unsafe_allow_html=True)
+            st.markdown("**🎓 Education:**")
             if edu:
                 for e in edu[:3]:
                     st.write(f"• {e}")
             else:
                 st.write("—")
             
-            st.markdown("<br>**💼 Experience:**")
+            st.markdown('<div class="spacing-sm"></div>', unsafe_allow_html=True)
+            st.markdown("**💼 Experience:**")
             if exp:
                 for e in exp[:3]:
                     st.write(f"• {e}")
@@ -615,7 +603,7 @@ def show_upload_section():
                 st.write("—")
         
         with col2:
-            st.markdown('<div class="section-header"> Job Role Analysis</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">🎯 Job Role Analysis</div>', unsafe_allow_html=True)
             
             preds = result.get("predictions", [])
             if preds:
@@ -623,13 +611,13 @@ def show_upload_section():
                 for role, score in preds[:3]:
                     st.markdown(f"**{role}** — {score:.1f}%")
                     st.progress(score / 100)
-                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown('<div class="spacing-sm"></div>', unsafe_allow_html=True)
                 
                 default_role = preds[0][0]
             else:
                 default_role = list(roles_map.keys())[0] if roles_map else "Junior Data Scientist"
             
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
             chosen = st.selectbox(
                 "🎯 Select Target Role for Detailed Analysis",
                 options=list(roles_map.keys()),
@@ -644,7 +632,7 @@ def show_upload_section():
             missing = result["gap"].get("missing", [])
             match_score = result.get('match_score', 0)
             
-            st.markdown(f"<br>**Match Score: {match_score:.1f}%**", unsafe_allow_html=True)
+            st.markdown(f'<div class="spacing-md"></div><div style="font-size: 1.1rem; font-weight: 600; color: #111827;">Match Score: {match_score:.1f}%</div>', unsafe_allow_html=True)
             st.progress(match_score / 100)
             
             if resume_record:
@@ -657,7 +645,7 @@ def show_upload_section():
                     match_score=match_score
                 )
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown('<div class="spacing-lg"></div>', unsafe_allow_html=True)
         st.markdown("---")
         
         col1, col2 = st.columns(2)
@@ -709,10 +697,12 @@ def show_my_resumes():
             
             skills = json.loads(resume['parsed_skills']) if isinstance(resume['parsed_skills'], str) else resume['parsed_skills']
             if skills:
-                st.markdown("<br>**Skills:**", unsafe_allow_html=True)
+                st.markdown('<div class="spacing-sm"></div>', unsafe_allow_html=True)
+                st.markdown("**Skills:**")
                 skills_html = " ".join([f'<span class="skill-badge">{skill}</span>' for skill in skills[:15]])
                 st.markdown(skills_html, unsafe_allow_html=True)
             
+            st.markdown('<div class="spacing-sm"></div>', unsafe_allow_html=True)
             if st.button(f"🗑️ Delete Resume", key=f"del_{resume['id']}", use_container_width=True):
                 st.session_state.resume_repo.delete_resume(resume['id'], st.session_state.user.id)
                 st.success("✅ Resume deleted!")
@@ -739,14 +729,14 @@ def show_analytics():
             df,
             x='analysis_date',
             y='match_score',
-            title='Your Improvement Over Time',
             labels={'match_score': 'Match Score (%)', 'analysis_date': 'Date'}
         )
         fig.update_traces(line_color='#667eea', line_width=3)
         fig.update_layout(
             plot_bgcolor='white',
             paper_bgcolor='white',
-            font=dict(family="Poppins")
+            font=dict(family="Inter"),
+            showlegend=False
         )
         st.plotly_chart(fig, use_container_width=True)
     
@@ -756,72 +746,100 @@ def show_analytics():
         fig = px.pie(
             values=role_counts.values,
             names=role_counts.index,
-            title='Distribution of Analyzed Roles'
         )
-        fig.update_traces(marker=dict(colors=px.colors.sequential.Purples))
+        fig.update_traces(marker=dict(colors=['#667eea', '#764ba2', '#9f7aea', '#d6bcfa']))
         fig.update_layout(
             paper_bgcolor='white',
-            font=dict(family="Poppins")
+            font=dict(family="Inter"),
+            showlegend=True
         )
         st.plotly_chart(fig, use_container_width=True)
     
-    st.markdown("<br>**🏆 Top Performing Analyses**", unsafe_allow_html=True)
+    st.markdown('<div class="spacing-md"></div>', unsafe_allow_html=True)
+    st.markdown("**🏆 Top Performing Analyses**")
     top_analyses = df.nlargest(5, 'match_score')[['target_role', 'match_score', 'analysis_date']]
     top_analyses['analysis_date'] = top_analyses['analysis_date'].dt.strftime('%Y-%m-%d')
     top_analyses.columns = ['Role', 'Match Score (%)', 'Date']
     st.dataframe(top_analyses, use_container_width=True, hide_index=True)
 
-# ============================================
-# 🌐 CUSTOM FOOTER SECTION (Modern Gradient)
-# ============================================
 def show_footer():
+    """Show premium footer"""
     st.markdown("""
     <style>
         .footer {
-            position: relative;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-            padding: 25px 0;
-            margin-top: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            background: white;
+            padding: 40px 0;
+            margin-top: 80px;
+            border-top: 1px solid #f0f0f0;
         }
-        .footer a {
-            color: white;
-            text-decoration: none;
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-section h4 {
             font-weight: 600;
-            margin: 0 12px;
+            color: #111827;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        .footer-link {
+            display: block;
+            color: #6b7280;
+            text-decoration: none;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
             transition: color 0.3s ease;
         }
-        .footer a:hover {
-            color: #ffd700;
+        .footer-link:hover {
+            color: #667eea;
         }
-        .footer p {
-            margin: 5px 0 0 0;
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-        .social-icons {
-            margin-top: 10px;
-        }
-        .social-icons a {
-            margin: 0 8px;
-            display: inline-block;
-            font-size: 1.2rem;
+        .footer-bottom {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid #f0f0f0;
+            color: #6b7280;
+            font-size: 0.85rem;
         }
     </style>
 
     <div class="footer">
-        <p> Built by <strong>Samir Khanal, Sijan Poudel and Ishan Chalise</strong></p>
-        <div class="social-icons">
-            <a href="https://github.com/samir-khanal" target="_blank">GitHub</a> |
-            <a href="https://www.linkedin.com/in/samir-khanal7/" target="_blank">🔗 LinkedIn</a> |
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4>AI Resume Analyzer Pro</h4>
+                    <p style="color: #6b7280; font-size: 0.9rem; line-height: 1.5;">
+                        Advanced AI-powered resume analysis and skill gap detection to help you land your dream job.
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <a href="#" class="footer-link">Resume Analysis</a>
+                    <a href="#" class="footer-link">Skill Gap Detection</a>
+                    <a href="#" class="footer-link">Career Planning</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <a href="#" class="footer-link">About</a>
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                    <a href="#" class="footer-link">Terms of Service</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <a href="https://github.com/samir-khanal" class="footer-link">GitHub</a>
+                    <a href="https://www.linkedin.com/in/samir-khanal7/" class="footer-link">LinkedIn</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                © 2024 AI Resume Analyzer Pro. Built by Samir Khanal, Sijan Poudel and Ishan Chalise. All rights reserved.
+            </div>
         </div>
-        <p>© 2025 AI Resume Analyzer Pro — All Rights Reserved.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -833,8 +851,8 @@ def main():
         show_auth_page()
     else:
         show_dashboard()
+    
+    show_footer()
 
 if __name__ == "__main__":
     main()
-
-show_footer()

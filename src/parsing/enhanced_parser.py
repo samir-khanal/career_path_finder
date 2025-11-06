@@ -3,10 +3,36 @@ from typing import Dict, List
 from .text_cleaner import clean_skill_list
 from .pdf_table_extractor import extract_skills_from_pdf_tables
 
+def preprocess_text_for_sections(text: str) -> str:
+    """
+    Pre-process text to make section detection more reliable
+    """
+    lines = text.split('\n')
+    processed_lines = []
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        # Detect and mark section headers more reliably
+        if (line.upper() in ["PROFESSIONAL SKILLS", "TECHNICAL SKILLS", "SKILLS", "COMPETENCIES"] or
+            re.search(r'(?i)^(skills?|technical skills?|professional skills?)$', line)):
+            processed_lines.append("")  # Blank line before
+            processed_lines.append(line.upper())  # Standardize case
+            processed_lines.append("")  # Blank line after
+        else:
+            processed_lines.append(line)
+    
+    return '\n'.join(processed_lines)
+
 def enhanced_extract_sections(text: str, file_path: str = None) -> Dict[str, List[str]]:
     """
     Enhanced section extraction that works for ALL resume types
     """
+     # PRE-PROCESS TEXT FIRST
+    text = preprocess_text_for_sections(text)
+
     sections = {
         "skills": [],
         "education": [],
@@ -27,8 +53,11 @@ def enhanced_extract_sections(text: str, file_path: str = None) -> Dict[str, Lis
     # STRATEGY 2: Use your PROVEN regex patterns (they work!)
     section_patterns = {
         "skills": [
-            r"(?i)(?:skills?/core\s+competencies|skills?|technical\s+skills?|technologies|expertise|competencies|core\s+competencies|proficiencies)[:\-\s]*(.*?)(?=(?i)education|experience|work|projects|certifications|career|$)",
-            r"(?i)skills?/core\s+competencies\s*(.*?)(?=(?i)education|experience|work|projects|certifications|career|$)"
+        # More flexible patterns for different resume formats
+        r"(?i)(?:skills?/core\s+competencies|skills?|technical\s+skills?|technologies|expertise|competencies|core\s+competencies|proficiencies|professional\s+skills?)[:\-\s]*(.*?)(?=(?i)education|experience|work|projects|certifications|career|language|summary|$)",
+        r"(?i)skills?/core\s+competencies\s*(.*?)(?=(?i)education|experience|work|projects|certifications|career|language|summary|$)",
+        # Additional pattern for bullet-style skills
+        r"(?i)(?:skills?|technical\s+skills?)[\s\n]*(?:[\-\•].*?)(?=(?i)education|experience|work|projects|certifications|career|language|summary|$)",
         ],
         
         "education": [
@@ -211,76 +240,111 @@ def extract_skills_from_text_keywords(text: str) -> List[str]:
     
     return list(skills_found)
 
-# KEEP YOUR EXISTING helper functions
+def extract_skills_section_accurate(text: str) -> str:
+    """
+    More accurate skills section extraction that finds the actual skills content
+    """
+    # Look for skills section with clear boundaries
+    skills_patterns = [
+        # Pattern 1: Standard skills section with header
+        r'(?i)(?:^|\n)(?:PROFESSIONAL SKILLS|TECHNICAL SKILLS|SKILLS|COMPETENCIES)\s*\n\s*\n(.*?)(?=\n\s*\n(?:EDUCATION|EXPERIENCE|WORK|PROJECTS|CERTIFICATIONS|LANGUAGES|$))',
+        # Pattern 2: Skills section with bullets immediately after
+        r'(?i)(?:^|\n)(?:PROFESSIONAL SKILLS|TECHNICAL SKILLS|SKILLS|COMPETENCIES)\s*\n(.*?)(?=\n\s*(?:EDUCATION|EXPERIENCE|WORK|PROJECTS|CERTIFICATIONS|LANGUAGES|$))',
+        # Pattern 3: Fallback - skills with bullet points
+        r'(?i)(?:^|\n)(?:PROFESSIONAL SKILLS|TECHNICAL SKILLS|SKILLS|COMPETENCIES)(.*?)(?=[\-\•]\s*\w)',
+    ]
+    
+    for pattern in skills_patterns:
+        match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+        if match:
+            content = match.group(1).strip()
+            # Verify this actually contains skills (not project descriptions)
+            if any(keyword in content.lower() for keyword in ['programming', 'development', 'database', 'python', 'java', 'sql', 'aws']):
+                print(f"DEBUG: Accurate skills section found with pattern")
+                return content
+            # Also check for bullet points or short lines (skills indicators)
+            lines = content.split('\n')
+            skill_like_lines = [line for line in lines if len(line.strip()) < 50 and re.search(r'^[\-\•]', line.strip())]
+            if len(skill_like_lines) >= 2:  # At least 2 bullet points
+                print(f"DEBUG: Skills-like content found with {len(skill_like_lines)} bullet points")
+                return content
+    
+    return ""
+
 def split_skills_string(skills_text: str) -> List[str]:
+    """
+    IMPROVED: Better handling of nested bullet points and multi-line skills
+    """
     if not skills_text:
         return []
     
     print(f"DEBUG: split_skills_string input: {skills_text[:200]}...")
     
-    # FIRST: Try to extract bullet points with multi-word skills
-    lines = [line.strip() for line in skills_text.split('\n') if line.strip()]
-    
-    bullet_skills = []
-    for line in lines:
-        # Skip lines that are too long (paragraphs)
-        if len(line) > 80:
-            continue
-            
-        # Remove ALL types of bullets including ▪ 
-        clean_line = re.sub(r'^[\-\•\*\–\—\▪]\s*', '', line)
-        
-        # Check if this looks like a skill (not a sentence, not too long)
-        if (len(clean_line) <= 50 and 
-            not re.search(r'[.!?]\s*[A-Z]', clean_line) and  # Not a sentence
-            not clean_line.endswith('.') and  # Not ending with period
-            clean_line and not clean_line.isdigit() and
-            len(clean_line) > 2):  # At least 3 characters
-            
-            skill = clean_line.strip()
-            if skill:
-                bullet_skills.append(skill)
-    
-    # If we found good bullet skills, use them
-    if bullet_skills:
-        print(f"DEBUG: Found {len(bullet_skills)} bullet skills: {bullet_skills}")
-        return bullet_skills
-    
-    # SECOND: If no bullets found, use SIMPLE space-based splitting but preserve multi-word
     skills = []
     lines = [line.strip() for line in skills_text.split('\n') if line.strip()]
     
-    for line in lines:
-        # Remove bullets
-        clean_line = re.sub(r'^[\-\•\*\–\—\▪]\s*', '', line)
-        
-        # If line is short and looks like skills, use the whole line
-        if len(clean_line) <= 50 and len(clean_line) > 2:
-            skills.append(clean_line)
-        else:
-            # Fallback to your original delimiter approach
-            delimiters = [',', ';', '/', '|', '&']
-            for delimiter in delimiters:
-                if delimiter in clean_line:
-                    parts = clean_line.split(delimiter)
-                    for part in parts:
-                        skill = part.strip()
-                        if skill and len(skill) > 2 and not skill.isdigit():
-                            skills.append(skill)
-                    break
-            else:
-                # If no delimiters, try to preserve multi-word skills
-                # Look for patterns like "Cyber Security", "Ethical Hacking"
-                potential_skills = re.findall(r'[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+|[A-Z][a-z]+', clean_line)
-                for skill in potential_skills:
-                    if len(skill) > 2 and len(skill) <= 30:
-                        skills.append(skill)
+    current_skill = ""
+    indent_level = 0
     
-    # Clean up the skills
+    for line in lines:
+        # Skip paragraph-like text (too long)
+        if len(line) > 100:
+            continue
+            
+        # Detect bullet points and their indentation
+        bullet_match = re.match(r'^([\-\•\*\–\—\▪]\s*)(.*)', line)
+        if bullet_match:
+            bullet_indent = len(bullet_match.group(1))
+            skill_content = bullet_match.group(2).strip()
+            
+            # If this is a top-level bullet (main skill category)
+            if bullet_indent <= 3:  # Top level bullet
+                if current_skill and len(current_skill) <= 50:
+                    skills.append(current_skill)
+                current_skill = skill_content
+                indent_level = bullet_indent
+            else:
+                # This is a sub-bullet (specific technologies under a category)
+                if current_skill:
+                    # Append to current category as combined skill
+                    combined_skill = f"{current_skill}: {skill_content}"
+                    if len(combined_skill) <= 60:
+                        skills.append(combined_skill)
+        else:
+            # No bullet - could be continuation or comma-separated
+            if current_skill and len(line) < 50:
+                # Check if this continues the previous skill
+                if len(current_skill + " " + line) <= 60:
+                    current_skill += " " + line
+                else:
+                    if current_skill and len(current_skill) <= 50:
+                        skills.append(current_skill)
+                    current_skill = line if len(line) <= 50 else ""
+            elif len(line) <= 50 and not re.search(r'[.!?]\s*[A-Z]', line):
+                # Standalone skill-like line
+                skills.append(line)
+    
+    # Don't forget the last skill
+    if current_skill and len(current_skill) <= 50 and current_skill not in skills:
+        skills.append(current_skill)
+    
+    # If no bullet structure found, fall back to comma/semicolon splitting
+    if not skills:
+        fallback_text = ' '.join(lines)
+        # Try comma separation first
+        if ',' in fallback_text:
+            parts = [part.strip() for part in fallback_text.split(',')]
+            skills.extend([p for p in parts if 2 < len(p) <= 50])
+        else:
+            # Use simple line-based approach
+            skills.extend([line for line in lines if 2 < len(line) <= 50])
+    
+    # Final cleanup
     cleaned_skills = []
     for skill in skills:
         skill = re.sub(r'^\W+|\W+$', '', skill)  # Remove surrounding punctuation
-        if skill and len(skill) > 2:
+        skill = re.sub(r'\s+', ' ', skill)  # Normalize spaces
+        if skill and 2 < len(skill) <= 60 and not skill.isdigit():
             cleaned_skills.append(skill)
     
     print(f"DEBUG: Final skills from split_skills_string: {cleaned_skills}")

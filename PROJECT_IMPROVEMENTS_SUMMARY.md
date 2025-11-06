@@ -129,7 +129,7 @@ class CrossPlatformPDFExtractor:
 
 #### After:
 - ✅ **Database-Driven Skills** - 20+ skills with categories
-- ✅ **10 Job Roles** across multiple categories:
+- ✅ **20 Job Roles** across multiple categories:
   - Data Science (Junior/Senior Data Scientist)
   - Machine Learning (ML Engineer)
   - Software Development (Full Stack, Frontend, Backend)
@@ -146,7 +146,7 @@ class CrossPlatformPDFExtractor:
 **Database Seeding:**
 ```sql
 -- Automatically populated with:
-- 10 job roles with detailed requirements
+- 20 job roles with detailed requirements
 - 20+ skills with synonyms
 - Categorized by type and popularity
 ```
@@ -303,7 +303,7 @@ streamlit run app/streamlit_app_enhanced.py
 | **UI** | Basic Streamlit | Custom CSS with animations |
 | **Database** | None | Supabase PostgreSQL |
 | **Authentication** | None | Email/password with sessions |
-| **Skills Dataset** | Manual CSV (4 roles) | Database (10 roles, 20+ skills) |
+| **Skills Dataset** | Manual CSV (4 roles) | Database (20 roles, 20+ skills) |
 | **PDF Parsing** | Single method | 4 fallback strategies |
 | **Cross-platform** | Windows only | Windows, Mac, Linux |
 | **Analytics** | None | Charts, trends, history |
