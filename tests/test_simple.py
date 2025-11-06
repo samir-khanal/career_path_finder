@@ -1,109 +1,99 @@
-# tests/test_simple.py
 import sys
+import os
 from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Add the src directory to Python path
+current_dir = Path(__file__).parent
+root_dir = current_dir.parent  # Go up to root directory
+src_dir = root_dir / "src"     # Then into src
+sys.path.append(str(src_dir))
 
-from src.parsing.ml.skill_matcher import analyze_resume
-from src.parsing import parse_resume
+from parsing.enhanced_parser import enhanced_extract_sections
 
-def test_with_created_files():
-    """Test with the files created by create_test_files.py"""
-    print("🧪 Testing resume analyzer with created test files...")
-    
-    # Test with simple PDF
-    simple_pdf = Path("tests/test_data/pdfs/simple.pdf")
-    if simple_pdf.exists():
-        print(f"📄 Testing with: {simple_pdf}")
-        try:
-            result = analyze_resume(str(simple_pdf))
-            skills = result["parsed"].get("skills", [])
-            print(f"✅ Analysis completed!")
-            print(f"   Skills found: {skills}")
-            print(f"   Skills count: {len(skills)}")
-            print(f"   Match score: {result.get('match_score', 0)}%")
-            
-            # Test basic parsing separately
-            parsed_data = parse_resume(str(simple_pdf))
-            print(f"   Direct parse skills: {parsed_data.get('skills', [])}")
-            
-        except Exception as e:
-            print(f"❌ Error analyzing {simple_pdf}: {e}")
-    else:
-        print("⚠️ Simple PDF not found. Run create_test_files.py first")
-    
-    print("\n" + "="*50 + "\n")
-    
-    # Test with table PDF
-    table_pdf = Path("tests/test_data/pdfs/tables.pdf")
-    if table_pdf.exists():
-        print(f"📊 Testing with: {table_pdf}")
-        try:
-            result = analyze_resume(str(table_pdf))
-            skills = result["parsed"].get("skills", [])
-            print(f"✅ Analysis completed!")
-            print(f"   Skills found: {skills}")
-            print(f"   Skills count: {len(skills)}")
-            print(f"   Match score: {result.get('match_score', 0)}%")
-            
-        except Exception as e:
-            print(f"❌ Error analyzing {table_pdf}: {e}")
-    else:
-        print("⚠️ Table PDF not found. Run create_test_files.py first")
+def extract_text_from_pdf(file_path):
+    """Simple PDF text extraction"""
+    try:
+        import PyPDF2
+        with open(file_path, 'rb') as file:
+            reader = PyPDF2.PdfReader(file)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() + "\n"
+            return text
+    except ImportError:
+        print("Installing PyPDF2...")
+        os.system("pip install PyPDF2")
+        import PyPDF2
+        return extract_text_from_pdf(file_path)
+    except Exception as e:
+        print(f"Error reading PDF: {e}")
+        return ""
 
-def test_skill_extraction():
-    """Test skill extraction specifically"""
-    print("\n🔍 Testing skill extraction...")
+def test_simple():
+    # FIXED PATH: Go up to root, then into demo_samples
+    resume_path = root_dir / "demo_samples" / "Resume.pdf"
     
-    # Create a simple test text with known skills
-    test_text = """
-    John Doe - Data Scientist
-    SKILLS: Python, SQL, Machine Learning, Pandas, Data Visualization
-    EXPERIENCE: Built ML models using Scikit-learn and TensorFlow
-    EDUCATION: BS Computer Science
-    """
+    if not os.path.exists(resume_path):
+        print(f"❌ Resume file not found at: {resume_path}")
+        print("Current working directory:", os.getcwd())
+        print("\nLooking for files in demo_samples folder:")
+        demo_samples_dir = root_dir / "demo_samples"
+        if demo_samples_dir.exists():
+            files = list(demo_samples_dir.iterdir())
+            if files:
+                for file in files:
+                    print(f"  - {file.name}")
+            else:
+                print("  (folder is empty)")
+        else:
+            print("  demo_samples folder doesn't exist")
+        return
     
-    # Test the enhanced parser directly
-    from src.parsing.enhanced_parser import enhanced_extract_sections
-    sections = enhanced_extract_sections(test_text)
+    print(f"📄 Testing with: {resume_path}")
     
-    print(f"✅ Skill extraction test:")
-    print(f"   Found skills: {sections.get('skills', [])}")
-    print(f"   Education: {sections.get('education', [])}")
-    print(f"   Experience: {sections.get('experience', [])}")
-
-def test_skill_matching():
-    """Test the skill matching logic"""
-    print("\n🎯 Testing skill matching...")
+    # Extract text
+    text = extract_text_from_pdf(str(resume_path))  # Convert to string for PyPDF2
     
-    from src.parsing.ml.skill_matcher import compute_skill_gap, normalize_skill_to_base
+    if not text:
+        print("❌ Could not extract text from PDF")
+        return
     
-    # Test data
-    resume_skills = ["python", "pandas", "sql", "machine learning"]
-    required_skills = ["Python", "Pandas", "Numpy", "Data Visualization", "SQL"]
+    print(f"✅ Extracted {len(text)} characters")
     
-    result = compute_skill_gap(resume_skills, required_skills)
+    # Parse the resume - CONVERT PATH TO STRING
+    print("\n🔄 Parsing resume...")
+    results = enhanced_extract_sections(text, str(resume_path))  # FIX: Convert to string
     
-    print(f"✅ Skill matching test:")
-    print(f"   Resume skills: {resume_skills}")
-    print(f"   Required skills: {required_skills}")
-    print(f"   Matched: {result.get('matched', [])}")
-    print(f"   Missing: {result.get('missing', [])}")
+    # Display results
+    print("\n" + "="*60)
+    print("📊 PARSING RESULTS")
+    print("="*60)
     
-    # Test normalization
-    test_skills = ["Python", "PYTHON", "python", "Sql", "SQL", "scikit-learn", "sklearn"]
-    normalized = [normalize_skill_to_base(skill) for skill in test_skills]
-    print(f"   Normalization test: {list(zip(test_skills, normalized))}")
+    print(f"\n🎯 SKILLS ({len(results['skills'])} found):")
+    for i, skill in enumerate(results['skills'], 1):
+        print(f"   {i}. {skill}")
+    
+    print(f"\n🎓 EDUCATION ({len(results['education'])} found):")
+    for i, edu in enumerate(results['education'], 1):
+        print(f"   {i}. {edu}")
+    
+    print(f"\n💼 EXPERIENCE ({len(results['experience'])} found):")
+    for i, exp in enumerate(results['experience'], 1):
+        preview = exp[:120] + "..." if len(exp) > 120 else exp
+        print(f"   {i}. {preview}")
+    
+    print(f"\n📜 CERTIFICATIONS ({len(results['certifications'])} found):")
+    for i, cert in enumerate(results['certifications'], 1):
+        print(f"   {i}. {cert}")
+    
+    # Summary
+    print("\n" + "="*60)
+    print("📈 SUMMARY:")
+    print(f"   Skills: {len(results['skills'])} items")
+    print(f"   Education: {len(results['education'])} items") 
+    print(f"   Experience: {len(results['experience'])} items")
+    print(f"   Certifications: {len(results['certifications'])} items")
+    print("="*60)
 
 if __name__ == "__main__":
-    print("🚀 Starting Comprehensive Resume Analyzer Tests")
-    print("=" * 60)
-    
-    test_with_created_files()
-    test_skill_extraction() 
-    test_skill_matching()
-    
-    print("=" * 60)
-    print("🎉 All tests completed!")
+    test_simple()

@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Optional, Dict, List, Literal
 from .pdf_parser_improved import extract_text_from_pdf
 from .docx_parser import extract_text_from_docx
-from .text_cleaner import clean_extracted_text
+from .text_cleaner import clean_extracted_text, clean_and_preserve_structure
 from .enhanced_parser import enhanced_extract_sections as extract_sections
 
 __version__ = "1.0.0"
@@ -34,7 +34,7 @@ def parse_pdf(pdf_path: str, engine: Literal["auto", "pypdf2", "pdfminer"] = "au
         raise FileNotFoundError(f"PDF not found: {pdf_path}")
 
     text = extract_text_from_pdf(pdf_path)
-    return clean_extracted_text(text) if text else None
+    return clean_and_preserve_structure(text) if text else None
 
 def parse_resume(file_path: str) -> Optional[Dict[str, List[str]]]:
     """Unified parser that returns structured data"""

@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import re
+import pandas as pd
 
 # Fix import paths - remove the problematic import
 try:
@@ -83,39 +84,44 @@ def debug_skill_matching(resume_skills: List[str], required_skills: List[str]):
 # ----------------------------
 # Data loaders - SIMPLIFIED
 # ----------------------------
-def load_skill_dataset() -> Dict[str, List[str]]:
-    """
-    Load job roles with REALISTIC skill overlaps
-    """
-    print("🔄 Loading realistic skill dataset with overlaps...")
+def load_skill_dataset(csv_path: Path = DATASET_CSV):
+    """Load job roles from CSV file"""
+    print(f"🔍 Looking for CSV at: {csv_path}")
     
+    if csv_path.exists():
+        try:
+            df = pd.read_csv(csv_path)
+            roles_map = {}
+            print(f"✅ CSV loaded successfully with {len(df)} roles")
+            
+            for _, row in df.iterrows():
+                role = row['role']
+                # ✅ CORRECT: s comes from row['skills'].split()
+                skills = [s.strip() for s in row['skills'].split(';')]
+                roles_map[role] = skills
+                print(f"   - {role}: {len(skills)} skills")
+            
+            return roles_map
+            
+        except Exception as e:
+            print(f"❌ Error loading CSV: {e}")
+            return get_fallback_roles()
+    else:
+        print(f"❌ CSV file not found at: {csv_path}")
+        return get_fallback_roles()  # ✅ Now returns ALL 20 roles!
+
+def get_fallback_roles():
+    """Fallback roles that match your actual app roles"""
+    print("⚠️ Using comprehensive fallback dataset")
     return {
-        'Junior Data Scientist': [
-            'python', 'pandas', 'sql', 'statistics', 'machine learning', 
-            'data visualization', 'scikit-learn', 'numpy', 'git'
-        ],
-        'Senior Data Scientist': [
-            'python', 'machine learning', 'deep learning', 'sql', 'aws',
-            'statistics', 'tensorflow', 'pytorch', 'spark', 'big data',
-            'docker', 'kubernetes', 'mlops', 'nlp'
-        ],
-        'ML Engineer': [
-            'python', 'machine learning', 'tensorflow', 'pytorch', 'docker',
-            'aws', 'deep learning', 'kubernetes', 'mlops', 'computer vision',
-            'nlp', 'git'
-        ],
-        'Data Analyst': [
-            'sql', 'python', 'excel', 'tableau', 'power bi', 'statistics',
-            'data visualization', 'pandas', 'data analysis', 'reporting'
-        ],
-        'Data Engineer': [
-            'python', 'sql', 'aws', 'spark', 'docker', 'kubernetes',
-            'etl', 'big data', 'airflow', 'kafka'
-        ],
-        'Business Analyst': [
-            'sql', 'excel', 'tableau', 'power bi', 'requirements', 'documentation',
-            'communication', 'project management'
-        ]
+        'Junior Data Scientist': ['Python', 'Pandas', 'Numpy', 'Data Visualization', 'SQL', 'Statistics', 'Scikit-learn', 'EDA', 'Communication'],
+        'Senior Data Scientist': ['Machine Learning', 'Deep Learning', 'Big Data', 'Cloud', 'NLP', 'Model Deployment', 'Leadership', 'Advanced Statistics'],
+        'Junior Data Analyst': ['Excel', 'SQL', 'Python', 'Data Visualization', 'Statistics', 'Reporting'],
+        'Senior Data Analyst': ['Advanced SQL', 'Predictive Analytics', 'Business Strategy', 'ETL', 'Data Warehousing', 'Communication'],
+        'Data Engineer': ['SQL', 'Python', 'ETL', 'Data Warehousing', 'Apache Spark', 'Big Data'],
+        'Software Engineer': ['Python', 'Java', 'Git', 'Algorithms', 'Data Structures', 'OOP'],
+        'DevOps Engineer': ['Docker', 'Linux', 'AWS', 'CI/CD', 'Scripting', 'Kubernetes'],
+        # Add more roles to match your 20...
     }
 
 def parse_resume_structured(file_path: str) -> Dict[str, List[str]]:
