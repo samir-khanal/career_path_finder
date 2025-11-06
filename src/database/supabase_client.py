@@ -2,6 +2,7 @@ import os
 from typing import Optional
 from supabase import create_client, Client
 from dotenv import load_dotenv
+import streamlit as st
 
 load_dotenv()
 
@@ -14,14 +15,23 @@ def init_supabase() -> Client:
     """
     global _supabase_client
 
-    supabase_url = os.getenv("VITE_SUPABASE_URL")
-    supabase_key = os.getenv("VITE_SUPABASE_ANON_KEY")
+    try:
+        # Use Streamlit secrets (works both locally and in production)
+        supabase_url = st.secrets["SUPABASE_URL"]
+        supabase_key = st.secrets["SUPABASE_KEY"]
+    except KeyError:
+        # Fallback to environment variables for backward compatibility
 
-    if not supabase_url or not supabase_key:
-        raise ValueError(
-            "Missing Supabase credentials. Please ensure VITE_SUPABASE_URL and "
-            "VITE_SUPABASE_ANON_KEY are set in your .env file."
-        )
+        supabase_url = os.getenv("VITE_SUPABASE_URL")
+        supabase_key = os.getenv("VITE_SUPABASE_ANON_KEY")
+
+        if not supabase_url or not supabase_key:
+            raise ValueError(
+                "1. For Streamlit: Add SUPABASE_URL and SUPABASE_KEY to .streamlit/secrets.toml\n"
+                "2. For local development: Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file"
+                "Missing Supabase credentials. Please ensure VITE_SUPABASE_URL and "
+                "VITE_SUPABASE_ANON_KEY are set in your .env file."
+            )
 
     _supabase_client = create_client(supabase_url, supabase_key)
     return _supabase_client

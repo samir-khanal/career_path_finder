@@ -7,7 +7,6 @@ venv/
 __pycache__/
 *.pyc
 .env
-
 # Models
 models/
 *.joblib
@@ -23,3 +22,9 @@ processed_data/
 .vscode/
 .DS_Store
 Thumbs.db
+# Uploads directory
+app/uploads/
+
+# Streamlit secrets and config
+.streamlit/
+app/.streamlit/
